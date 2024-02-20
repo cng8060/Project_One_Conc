@@ -92,6 +92,10 @@ namespace Project_One
 
         private static (long, long, long, long, long) SequentialDiskUsage(string path)
         {
+            // TODO: Make this not fuckin blow up when we access files we aren't supposed to
+            // Can just do try ... catch, but what will we then get all files without permission issues or will we get
+            // nothing??
+            
             string[] files = Directory.GetFiles(path);
             string[] dirs = Directory.GetDirectories(path);
 
@@ -132,6 +136,8 @@ namespace Project_One
 
         private static (long, long, long, long, long) ParallelDiskUsage(string path)
         {
+            // TODO: DON'T BLOW UP EITHER, I SWEAR TO GOD DON'T DO IT YOU FUCKER
+            
             string[] files = Directory.GetFiles(path);
             string[] dirs = Directory.GetDirectories(path);
 
