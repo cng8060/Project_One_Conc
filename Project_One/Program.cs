@@ -49,6 +49,8 @@ namespace Project_One
                     Console.WriteLine(options.Path + " isn't a directory, ending process...");
                     return;
                 }
+                
+                Console.WriteLine("Directory '{0}':\n", options.Path);
 
                 if (options.SingleThread)
                 {
@@ -103,7 +105,7 @@ namespace Project_One
                         : countedImages.ToString("N0");
                     
                     Console.WriteLine(
-                        "Parallel Calculated in: {0}s\n{1} folders, {2} files, {3} bytes\n{4} image files, {5} bytes",
+                        "Parallel Calculated in: {0}s\n{1} folders, {2} files, {3} bytes\n{4} image files, {5} bytes\n",
                         elapsedSeconds, countedFolders.ToString("N0"), countedFiles.ToString("N0"),
                         totalSpaceAmount.ToString("N0"), countedImagesStr, imageSpaceAmount.ToString("N0"));
                     
@@ -143,9 +145,9 @@ namespace Project_One
                 files = Directory.GetFiles(path);
                 dirs = Directory.GetDirectories(path);
             }
-            catch (Exception err)
+            catch (Exception)
             {
-                Console.WriteLine("Error when getting contents of directory: {0}\nError message:\n{1}", path, err.Message);
+                // Ignore :)
             }
 
             foreach (string file in files)
@@ -164,9 +166,9 @@ namespace Project_One
                         imageSpaceAmount += currFile.Length;
                     }
                 }
-                catch (Exception err)
+                catch (Exception)
                 {
-                    Console.WriteLine("Error reading file: {0}\nError message:\n{1}", file, err.Message);
+                    // Ignore :)
                 }
             }
 
@@ -201,9 +203,9 @@ namespace Project_One
                 files = Directory.GetFiles(path);
                 dirs = Directory.GetDirectories(path);
             }
-            catch (Exception err)
+            catch (Exception)
             {
-                Console.WriteLine("Error when getting contents of directory: {0}\nError message:\n{1}", path, err.Message);
+                // Ignore :)
             }
 
             Parallel.ForEach(files, file =>
@@ -222,9 +224,9 @@ namespace Project_One
                         Interlocked.Add(ref imageSpaceAmount, currFile.Length);
                     }
                 }
-                catch (Exception err)
+                catch (Exception)
                 {
-                    Console.WriteLine("Error reading file: {0}\nError message:\n{1}", file, err.Message);
+                    // Ignore :)
                 }
             });
             
