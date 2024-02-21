@@ -93,7 +93,7 @@ namespace Project_One
                     DateTime startTime = DateTime.Now;
                     
                     var (countedFolders, countedFiles, totalSpaceAmount, countedImages,
-                        imageSpaceAmount) = SequentialDiskUsage(options.Path);
+                        imageSpaceAmount) = ParallelDiskUsage(options.Path);
                     
                     DateTime endTime = DateTime.Now;
                     Double elapsedSeconds = (endTime - startTime).TotalSeconds;
@@ -103,14 +103,14 @@ namespace Project_One
                         : countedImages.ToString("N0");
                     
                     Console.WriteLine(
-                        "Sequential Calculated in: {0}s\n{1} folders, {2} files, {3} bytes\n{4} image files, {5} bytes",
+                        "Parallel Calculated in: {0}s\n{1} folders, {2} files, {3} bytes\n{4} image files, {5} bytes",
                         elapsedSeconds, countedFolders.ToString("N0"), countedFiles.ToString("N0"),
                         totalSpaceAmount.ToString("N0"), countedImagesStr, imageSpaceAmount.ToString("N0"));
                     
                     startTime = DateTime.Now;
 
                     (countedFolders, countedFiles, totalSpaceAmount, countedImages,
-                        imageSpaceAmount) = ParallelDiskUsage(options.Path);
+                        imageSpaceAmount) = SequentialDiskUsage(options.Path);
                     
                     countedImagesStr = (countedImages == 0)
                         ? "No image files found in the directory"
@@ -120,7 +120,7 @@ namespace Project_One
                     elapsedSeconds = (endTime - startTime).TotalSeconds;
                     
                     Console.WriteLine(
-                        "Parallel Calculated in: {0}s\n{1} folders, {2} files, {3} bytes\n{4} image files, {5} bytes",
+                        "Sequential Calculated in: {0}s\n{1} folders, {2} files, {3} bytes\n{4} image files, {5} bytes",
                         elapsedSeconds, countedFolders.ToString("N0"), countedFiles.ToString("N0"),
                         totalSpaceAmount.ToString("N0"), countedImagesStr, imageSpaceAmount.ToString("N0"));
                 }
@@ -129,8 +129,8 @@ namespace Project_One
         
         private static (long, long, long, long, long) SequentialDiskUsage(string path)
         {
-            string[] files = Directory.GetFiles(path);
-            string[] dirs = Directory.GetDirectories(path);
+            string[] files = Array.Empty<string>();
+            string[] dirs = Array.Empty<string>();
 
             long countedFolders = 0;
             long countedFiles = 0;
@@ -187,8 +187,8 @@ namespace Project_One
 
         private static (long, long, long, long, long) ParallelDiskUsage(string path)
         {
-            string[] files = {};
-            string[] dirs = {};
+            string[] files = Array.Empty<string>();
+            string[] dirs = Array.Empty<string>();
 
             long countedFolders = 0;
             long countedFiles = 0;
