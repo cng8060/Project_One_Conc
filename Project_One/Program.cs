@@ -28,7 +28,7 @@ namespace Project_One
             {
                 return new List<Example>()
                 {
-                    new Example("Summarize disk usage of the set of FILES, recursively for directories",
+                    new Example("du [-s] [-d] [-b] <path>\nSummarize disk usage of the set of FILES, recursively for directories.\nExample:",
                         new ProgramOptions { Both = true, Path = "C:/Windows"})
                 };
             }
@@ -105,17 +105,35 @@ namespace Project_One
             long countedImages = 0;
             long imageSpaceAmount = 0;
 
+            try
+            {
+                files = Directory.GetFiles(path);
+                dirs = Directory.GetDirectories(path);
+            }
+            catch (Exception err)
+            {
+                Console.WriteLine("Error when getting contents of directory: {0}\nError message:\n{1}", path, err.Message);
+            }
+
             foreach (string file in files)
             {
-                FileInfo currFile = new FileInfo(file);
-                
-                countedFiles++;
-                totalSpaceAmount += currFile.Length;
-
-                if (_imgExts.Contains(currFile.Extension))
+                try
                 {
-                    countedImages++;
-                    imageSpaceAmount += currFile.Length;
+                    countedFiles++;
+                    
+                    FileInfo currFile = new FileInfo(file);
+
+                    totalSpaceAmount += currFile.Length;
+
+                    if (_imgExts.Contains(currFile.Extension))
+                    {
+                        countedImages++;
+                        imageSpaceAmount += currFile.Length;
+                    }
+                }
+                catch (Exception err)
+                {
+                    Console.WriteLine("Error reading file: {0}\nError message:\n{1}", file, err.Message);
                 }
             }
 
@@ -136,28 +154,45 @@ namespace Project_One
 
         private static (long, long, long, long, long) ParallelDiskUsage(string path)
         {
-            // TODO: DON'T BLOW UP EITHER, I SWEAR TO GOD DON'T DO IT YOU FUCKER
-            
-            string[] files = Directory.GetFiles(path);
-            string[] dirs = Directory.GetDirectories(path);
+            string[] files = {};
+            string[] dirs = {};
 
             long countedFolders = 0;
             long countedFiles = 0;
             long totalSpaceAmount = 0;
             long countedImages = 0;
             long imageSpaceAmount = 0;
+            
+            // TODO: DON'T BLOW UP EITHER, I SWEAR TO GOD DON'T DO IT YOU FUCKER
+            try
+            {
+                files = Directory.GetFiles(path);
+                dirs = Directory.GetDirectories(path);
+            }
+            catch (Exception err)
+            {
+                Console.WriteLine("Error when getting contents of directory: {0}\nError message:\n{1}", path, err.Message);
+            }
 
             Parallel.ForEach(files, file =>
             {
-                FileInfo currFile = new FileInfo(file);
-                
-                Interlocked.Increment(ref countedFiles);
-                Interlocked.Add(ref totalSpaceAmount, currFile.Length);
-
-                if (_imgExts.Contains(currFile.Extension))
+                try
                 {
-                    Interlocked.Increment(ref countedImages);
-                    Interlocked.Add(ref imageSpaceAmount, currFile.Length);
+                    Interlocked.Increment(ref countedFiles);
+                    
+                    FileInfo currFile = new FileInfo(file);
+
+                    Interlocked.Add(ref totalSpaceAmount, currFile.Length);
+
+                    if (_imgExts.Contains(currFile.Extension))
+                    {
+                        Interlocked.Increment(ref countedImages);
+                        Interlocked.Add(ref imageSpaceAmount, currFile.Length);
+                    }
+                }
+                catch (Exception err)
+                {
+                    Console.WriteLine("Error reading file: {0}\nError message:\n{1}", file, err.Message);
                 }
             });
             
