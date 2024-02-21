@@ -1,5 +1,4 @@
 ﻿using System.Collections.Immutable;
-using System.Diagnostics;
 using CommandLine;
 using CommandLine.Text;
 
@@ -18,7 +17,7 @@ namespace Project_One
             HelpText = "Run in both parallel and single threaded mode. Runs parallel followed by sequential mode")]
         public bool Both { get; set; }
         
-        [Value(index: 0, MetaName = "Path", Required = true, HelpText = "Starting directory to parse through")]
+        [Value(index: 0, MetaName = "path", Required = true, HelpText = "Starting directory to parse through")]
         public string? Path { get; set; }
 
         [Usage(ApplicationAlias = "du")]
@@ -28,8 +27,8 @@ namespace Project_One
             {
                 return new List<Example>()
                 {
-                    new Example("du [-s] [-d] [-b] <path>\nSummarize disk usage of the set of FILES, recursively for directories.\nExample:",
-                        new ProgramOptions { Both = true, Path = "C:/Windows"})
+                    new Example("du [-s] [-d] [-b] <path>\nSummarize disk usage of the set of FILES, recursively for directories.\nExample",
+                        new ProgramOptions { Both = true, Path = "C:\\Windows"})
                 };
             }
         }
@@ -58,14 +57,17 @@ namespace Project_One
                     var (countedFolders, countedFiles, totalSpaceAmount, countedImages,
                         imageSpaceAmount) = SequentialDiskUsage(options.Path);
                     
+                    string countedImagesStr = (countedImages == 0)
+                        ? "No image files found in the directory"
+                        : countedImages.ToString("N0");
+                    
                     DateTime endTime = DateTime.Now;
                     Double elapsedSeconds = (endTime - startTime).TotalSeconds;
                     
                     Console.WriteLine(
                         "Sequential Calculated in: {0}s\n{1} folders, {2} files, {3} bytes\n{4} image files, {5} bytes",
                         elapsedSeconds, countedFolders.ToString("N0"), countedFiles.ToString("N0"),
-                        totalSpaceAmount.ToString("N0"), countedImages.ToString("N0"),
-                        imageSpaceAmount.ToString("N0"));
+                        totalSpaceAmount.ToString("N0"), countedImagesStr, imageSpaceAmount.ToString("N0"));
                 }
                 else if (options.Parallel)
                 {
@@ -74,28 +76,59 @@ namespace Project_One
                     var (countedFolders, countedFiles, totalSpaceAmount, countedImages,
                             imageSpaceAmount) = ParallelDiskUsage(options.Path);
                     
+                    string countedImagesStr = (countedImages == 0)
+                        ? "No image files found in the directory"
+                        : countedImages.ToString("N0");
+                    
                     DateTime endTime = DateTime.Now;
                     Double elapsedSeconds = (endTime - startTime).TotalSeconds;
                     
                     Console.WriteLine(
                         "Parallel Calculated in: {0}s\n{1} folders, {2} files, {3} bytes\n{4} image files, {5} bytes",
                         elapsedSeconds, countedFolders.ToString("N0"), countedFiles.ToString("N0"),
-                        totalSpaceAmount.ToString("N0"), countedImages.ToString("N0"),
-                        imageSpaceAmount.ToString("N0"));
+                        totalSpaceAmount.ToString("N0"), countedImagesStr, imageSpaceAmount.ToString("N0"));
                 }
                 else
                 {
-                    Console.WriteLine("Not made yet :3");
+                    DateTime startTime = DateTime.Now;
+                    
+                    var (countedFolders, countedFiles, totalSpaceAmount, countedImages,
+                        imageSpaceAmount) = SequentialDiskUsage(options.Path);
+                    
+                    DateTime endTime = DateTime.Now;
+                    Double elapsedSeconds = (endTime - startTime).TotalSeconds;
+
+                    string countedImagesStr = (countedImages == 0)
+                        ? "No image files found in the directory"
+                        : countedImages.ToString("N0");
+                    
+                    Console.WriteLine(
+                        "Sequential Calculated in: {0}s\n{1} folders, {2} files, {3} bytes\n{4} image files, {5} bytes",
+                        elapsedSeconds, countedFolders.ToString("N0"), countedFiles.ToString("N0"),
+                        totalSpaceAmount.ToString("N0"), countedImagesStr, imageSpaceAmount.ToString("N0"));
+                    
+                    startTime = DateTime.Now;
+
+                    (countedFolders, countedFiles, totalSpaceAmount, countedImages,
+                        imageSpaceAmount) = ParallelDiskUsage(options.Path);
+                    
+                    countedImagesStr = (countedImages == 0)
+                        ? "No image files found in the directory"
+                        : countedImages.ToString("N0");
+                    
+                    endTime = DateTime.Now;
+                    elapsedSeconds = (endTime - startTime).TotalSeconds;
+                    
+                    Console.WriteLine(
+                        "Parallel Calculated in: {0}s\n{1} folders, {2} files, {3} bytes\n{4} image files, {5} bytes",
+                        elapsedSeconds, countedFolders.ToString("N0"), countedFiles.ToString("N0"),
+                        totalSpaceAmount.ToString("N0"), countedImagesStr, imageSpaceAmount.ToString("N0"));
                 }
             });
         }
-
+        
         private static (long, long, long, long, long) SequentialDiskUsage(string path)
         {
-            // TODO: Make this not fuckin blow up when we access files we aren't supposed to
-            // Can just do try ... catch, but what will we then get all files without permission issues or will we get
-            // nothing??
-            
             string[] files = Directory.GetFiles(path);
             string[] dirs = Directory.GetDirectories(path);
 
@@ -163,7 +196,6 @@ namespace Project_One
             long countedImages = 0;
             long imageSpaceAmount = 0;
             
-            // TODO: DON'T BLOW UP EITHER, I SWEAR TO GOD DON'T DO IT YOU FUCKER
             try
             {
                 files = Directory.GetFiles(path);
