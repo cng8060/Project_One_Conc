@@ -51,80 +51,47 @@ namespace Project_One
                 }
                 
                 Console.WriteLine("Directory '{0}':\n", options.Path);
-
-                if (options.SingleThread)
-                {
-                    DateTime startTime = DateTime.Now;
-                    
-                    var (countedFolders, countedFiles, totalSpaceAmount, countedImages,
-                        imageSpaceAmount) = SequentialDiskUsage(options.Path);
-                    
-                    string countedImagesStr = (countedImages == 0)
-                        ? "No image files found in the directory"
-                        : countedImages.ToString("N0");
-                    
-                    DateTime endTime = DateTime.Now;
-                    Double elapsedSeconds = (endTime - startTime).TotalSeconds;
-                    
-                    Console.WriteLine(
-                        "Sequential Calculated in: {0}s\n{1} folders, {2} files, {3} bytes\n{4} image files, {5} bytes",
-                        elapsedSeconds, countedFolders.ToString("N0"), countedFiles.ToString("N0"),
-                        totalSpaceAmount.ToString("N0"), countedImagesStr, imageSpaceAmount.ToString("N0"));
-                }
-                else if (options.Parallel)
+                
+                if (options.Parallel || options.Both)
                 {
                     DateTime startTime = DateTime.Now;
 
-                    var (countedFolders, countedFiles, totalSpaceAmount, countedImages,
-                            imageSpaceAmount) = ParallelDiskUsage(options.Path);
-                    
-                    string countedImagesStr = (countedImages == 0)
-                        ? "No image files found in the directory"
-                        : countedImages.ToString("N0");
-                    
-                    DateTime endTime = DateTime.Now;
-                    Double elapsedSeconds = (endTime - startTime).TotalSeconds;
-                    
-                    Console.WriteLine(
-                        "Parallel Calculated in: {0}s\n{1} folders, {2} files, {3} bytes\n{4} image files, {5} bytes",
-                        elapsedSeconds, countedFolders.ToString("N0"), countedFiles.ToString("N0"),
-                        totalSpaceAmount.ToString("N0"), countedImagesStr, imageSpaceAmount.ToString("N0"));
-                }
-                else
-                {
-                    DateTime startTime = DateTime.Now;
-                    
                     var (countedFolders, countedFiles, totalSpaceAmount, countedImages,
                         imageSpaceAmount) = ParallelDiskUsage(options.Path);
                     
-                    DateTime endTime = DateTime.Now;
-                    Double elapsedSeconds = (endTime - startTime).TotalSeconds;
-
                     string countedImagesStr = (countedImages == 0)
                         ? "No image files found in the directory"
-                        : countedImages.ToString("N0");
+                        : countedImages.ToString("N0") + " image files, " + imageSpaceAmount.ToString("N0") + 
+                          " bytes";
+                    
+                    DateTime endTime = DateTime.Now;
+                    Double elapsedSeconds = (endTime - startTime).TotalSeconds;
                     
                     Console.WriteLine(
-                        "Parallel Calculated in: {0}s\n{1} folders, {2} files, {3} bytes\n{4} image files, {5} bytes\n",
+                        "Parallel Calculated in: {0}s\n{1} folders, {2} files, {3} bytes\n{4}\n",
                         elapsedSeconds, countedFolders.ToString("N0"), countedFiles.ToString("N0"),
-                        totalSpaceAmount.ToString("N0"), countedImagesStr, imageSpaceAmount.ToString("N0"));
-                    
-                    startTime = DateTime.Now;
+                        totalSpaceAmount.ToString("N0"), countedImagesStr);
+                }
 
-                    (countedFolders, countedFiles, totalSpaceAmount, countedImages,
+                if (options.SingleThread || options.Both)
+                {
+                    DateTime startTime = DateTime.Now;
+                    
+                    var (countedFolders, countedFiles, totalSpaceAmount, countedImages,
                         imageSpaceAmount) = SequentialDiskUsage(options.Path);
                     
-                    countedImagesStr = (countedImages == 0)
+                    string countedImagesStr = (countedImages == 0)
                         ? "No image files found in the directory"
-                        : countedImages.ToString("N0");
+                        : countedImages.ToString("N0") + " image files, " + imageSpaceAmount.ToString("N0") + 
+                          " bytes";
                     
-                    endTime = DateTime.Now;
-                    elapsedSeconds = (endTime - startTime).TotalSeconds;
+                    DateTime endTime = DateTime.Now;
+                    Double elapsedSeconds = (endTime - startTime).TotalSeconds;
                     
                     Console.WriteLine(
-                        "Sequential Calculated in: {0}s\n{1} folders, {2} files, {3} bytes\n{4} image files, {5} bytes",
+                        "Sequential Calculated in: {0}s\n{1} folders, {2} files, {3} bytes\n{4}\n",
                         elapsedSeconds, countedFolders.ToString("N0"), countedFiles.ToString("N0"),
-                        totalSpaceAmount.ToString("N0"), countedImagesStr, imageSpaceAmount.ToString("N0"));
+                        totalSpaceAmount.ToString("N0"), countedImagesStr);
                 }
             });
         }
